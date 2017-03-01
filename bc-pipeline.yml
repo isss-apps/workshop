@@ -1,0 +1,269 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: cicd-pipeline
+parameters:
+  - name: STORE
+    value: "store"
+    required: true
+  - name: STORE_ORDER
+    value: "store-order"
+    required: true
+  - name: STORE_CATALOGUE
+    value: "store-catalogue"
+    required: true
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      name: cicd
+    name: cicd
+  spec:
+    nodeSelector: null
+    output: {}
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      type: None
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfile: |-
+          def storeCatalogue="${STORE_CATALOGUE}"
+          def store="${STORE}"
+          node {
+            stage("Initialize") {
+              sh "curl -O https://gist.githubusercontent.com/dsimansk/7612b277e6f3057306dd5a9fac112674/raw/9edc779c4f3707ed4797f909111c80b2d24a0a15/settings.xml"
+              stash name: "settings.xml", includes:"settings.xml"
+            }
+          }
+          node("maven") {
+            stage("Build Maven ${storeCatalogue}") {
+              git url: "https://github.com/isss-apps/${storeCatalogue}.git", branch: "master"
+              unstash name:"settings.xml"
+              sh "mvn -s settings.xml clean package"
+              stash name:"${storeCatalogue}-jar", includes:"target/${storeCatalogue}.jar"
+            }
+            stage("Build Maven ${store}") {
+              git url: "https://github.com/isss-apps/${store}.git", branch: "master"
+              unstash name:"settings.xml"
+              sh "mvn -s settings.xml clean package"
+              stash name:"${store}-jar", includes:"target/${store}.jar"
+            }
+          }
+          stage("Build Images") {
+            input message: "Promote to STAGE?", ok: "Promote"
+            parallel (
+              "${storeCatalogue} image": {
+                node {
+                  unstash name:"${storeCatalogue}-jar"
+                  sh "oc start-build ${storeCatalogue} --from-file=target/${storeCatalogue}.jar --follow"
+                }
+              },
+              "${store} image": {
+                node {
+                  unstash name:"${store}-jar"
+                  sh "oc start-build ${store} --from-file=target/${store}.jar --follow"
+                }
+              }
+            )
+          }
+          node {
+            stage("Deployment") {
+              parallel (
+                "${storeCatalogue} DC": {
+                  openshiftVerifyDeployment deploymentConfig: storeCatalogue
+                },
+                "${store} DC": {
+                  openshiftVerifyDeployment deploymentConfig: store
+                }
+              )
+            }
+          }
+      type: JenkinsPipeline
+    triggers:
+    - github:
+        secret: secret101
+      type: GitHub
+    - generic:
+        secret: secret101
+      type: Generic
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: ${STORE_CATALOGUE}
+    labels:
+      application: ${STORE_CATALOGUE}
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${STORE_CATALOGUE}:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      binary: {}
+      type: Binary
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: fis-java-openshift:2.0
+          namespace: openshift
+      type: Source
+    triggers: []
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: ${STORE_CATALOGUE}
+    labels:
+      application: ${STORE_CATALOGUE}
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: ${STORE}
+    labels:
+      application: ${STORE}
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${STORE}:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      binary: {}
+      type: Binary
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: fis-java-openshift:2.0
+          namespace: openshift
+      type: Source
+    triggers: []
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: ${STORE}
+    labels:
+      application: ${STORE}
+- apiVersion: "v1"
+  kind: "DeploymentConfig"
+  metadata:
+    labels:
+      project: ${STORE_CATALOGUE}
+    name: ${STORE_CATALOGUE}
+  spec:
+    replicas: 1
+    selector:
+      project: ${STORE_CATALOGUE}
+    strategy:
+      rollingParams:
+        timeoutSeconds: 10800
+      type: "Rolling"
+    template:
+      metadata:
+        labels:
+          project: ${STORE_CATALOGUE}
+      spec:
+        containers:
+        - env:
+          - name: "JAVA_APP_DIR"
+            value: "/deployments"
+          image: ${STORE_CATALOGUE}
+          imagePullPolicy: "Always"
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8081
+            initialDelaySeconds: 180
+          name: "spring-boot"
+          ports:
+          - containerPort: 8080
+            name: "http"
+            protocol: "TCP"
+          - containerPort: 8778
+            name: "jolokia"
+            protocol: "TCP"
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8081
+            initialDelaySeconds: 10
+          securityContext:
+            privileged: false
+    triggers:
+    - type: "ConfigChange"
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - "spring-boot"
+        from:
+          kind: "ImageStreamTag"
+          name: "${STORE_CATALOGUE}:latest"
+      type: "ImageChange"
+- apiVersion: "v1"
+  kind: "DeploymentConfig"
+  metadata:
+    labels:
+      project: ${STORE}
+    name: ${STORE}
+  spec:
+    replicas: 1
+    selector:
+      project: ${STORE}
+    strategy:
+      rollingParams:
+        timeoutSeconds: 10800
+      type: "Rolling"
+    template:
+      metadata:
+        labels:
+          project: ${STORE}
+      spec:
+        containers:
+        - env:
+          - name: "JAVA_APP_DIR"
+            value: "/deployments"
+          - name: "SPRING_DATASOURCE_USERNAME"
+            value: "student"
+          - name: "SPRING_DATASOURCE_PASSWORD"
+            value: "isss-secret"
+          image: ${STORE}
+          imagePullPolicy: "Always"
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8081
+            initialDelaySeconds: 180
+          name: "spring-boot"
+          ports:
+          - containerPort: 8080
+            name: "http"
+            protocol: "TCP"
+          - containerPort: 8778
+            name: "jolokia"
+            protocol: "TCP"
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8081
+            initialDelaySeconds: 10
+          securityContext:
+            privileged: false
+    triggers:
+    - type: "ConfigChange"
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - "spring-boot"
+        from:
+          kind: "ImageStreamTag"
+          name: "${STORE}:latest"
+      type: "ImageChange"
