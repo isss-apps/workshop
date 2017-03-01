@@ -32,13 +32,11 @@ objects:
         jenkinsfile: |-
           def storeCatalogue="${STORE_CATALOGUE}"
           def store="${STORE}"
-          node {
+          node("maven") {
             stage("Initialize") {
               sh "curl -O https://raw.githubusercontent.com/isss-apps/cicd-pipeline/master/settings.xml"
               stash name: "settings.xml", includes:"settings.xml"
             }
-          }
-          node("maven") {
             stage("Build Maven ${storeCatalogue}") {
               git url: "https://github.com/isss-apps/${storeCatalogue}.git", branch: "master"
               unstash name:"settings.xml"
@@ -52,25 +50,21 @@ objects:
               stash name:"${store}-jar", includes:"target/${store}.jar"
             }
           }
-          stage("Build Images") {
-            input message: "Promote to STAGE?", ok: "Promote"
-            parallel (
-              "${storeCatalogue} image": {
-                node {
-                  unstash name:"${storeCatalogue}-jar"
-                  sh "oc start-build ${storeCatalogue} --from-file=target/${storeCatalogue}.jar --follow"
-                }
-              },
-              "${store} image": {
-                node {
-                  unstash name:"${store}-jar"
-                  sh "oc start-build ${store} --from-file=target/${store}.jar --follow"
-                }
-              }
-            )
-          }
           node {
-            stage("Deployment") {
+            stage("Build images") {
+            input message: "Promote to STAGE?", ok: "Promote"
+              parallel (
+                "${storeCatalogue} image": {
+                    unstash name:"${storeCatalogue}-jar"
+                    sh "oc start-build ${storeCatalogue} --from-file=target/${storeCatalogue}.jar --follow"
+                },
+                "${store} image": {
+                    unstash name:"${store}-jar"
+                    sh "oc start-build ${store} --from-file=target/${store}.jar --follow"
+                }
+              )
+            }
+            stage("Verify deployment") {
               parallel (
                 "${storeCatalogue} DC": {
                   openshiftVerifyDeployment deploymentConfig: storeCatalogue
