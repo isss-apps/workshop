@@ -25,3 +25,18 @@ oc status
 
 oc process bc-pipeline.yml | oc create -f -
 ```
+
+
+#### Webhooks
+Builds can be invoked via webhooks (generic or GitHub). See [oficial documentation](https://docs.openshift.com/container-platform/3.4/dev_guide/builds/triggering_builds.html#generic-webhooks) for more details.
+
+
+Locate webhook URL from ouput of this command.
+```
+oc describe bc cicd
+```
+
+Start build with `POST` method on provided URL.
+```
+curl -k -X POST <webhook-url>
+```
