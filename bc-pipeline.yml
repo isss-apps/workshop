@@ -34,7 +34,7 @@ objects:
           def store="${STORE}"
           node {
             stage("Initialize") {
-              sh "curl -O https://gist.githubusercontent.com/dsimansk/7612b277e6f3057306dd5a9fac112674/raw/9edc779c4f3707ed4797f909111c80b2d24a0a15/settings.xml"
+              sh "curl -O https://raw.githubusercontent.com/isss-apps/cicd-pipeline/master/settings.xml"
               stash name: "settings.xml", includes:"settings.xml"
             }
           }
@@ -267,3 +267,31 @@ objects:
           kind: "ImageStreamTag"
           name: "${STORE}:latest"
       type: "ImageChange"
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    labels:
+      project: ${STORE_CATALOGUE}
+    name: ${STORE_CATALOGUE}
+  spec:
+    ports:
+    - name: "http"
+      port: 80
+      protocol: "TCP"
+      targetPort: 8080
+    selector:
+      project: ${STORE_CATALOGUE}
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    labels:
+      project: ${STORE}
+    name: ${STORE}
+  spec:
+    ports:
+    - name: "http"
+      port: 80
+      protocol: "TCP"
+      targetPort: 8080
+    selector:
+      project: ${STORE}
