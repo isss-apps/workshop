@@ -47,6 +47,46 @@ to expose the following endpoints:
 
 Asking the catalog service to get the list of sub-categories or products in the given tree, filtering out the internal details (such as the storeId)
 
+```
+$ curl -q http://store.foobarter.org/catalog/list | python -m json.tool
+[
+    {
+        "dir": true,
+        "id": 0,
+        "name": "Plush Toys",
+        "price": null,
+        "rootCategory": 0
+    },
+    {
+        "dir": true,
+        "id": 1,
+        "name": "Instruments",
+        "price": null,
+        "rootCategory": 1
+    },
+    {
+        "dir": true,
+        "id": 2,
+        "name": "Family Fun",
+        "price": null,
+        "rootCategory": 2
+    }
+]
+```
+
+```
+$ curl -q http://store.foobarter.org/catalog/list/2 | python -m json.tool
+[
+    {
+        "dir": false,
+        "id": 8,
+        "name": "Portal Gun",
+        "price": 999.99,
+        "rootCategory": 2
+    }
+]
+```
+
 #### GET /availability/${id}
 
 Returns the availability information about the product. Asks the catalog service for the storeId, and does the SQL query to the Store DB to retreive the stock and supplier delay.
