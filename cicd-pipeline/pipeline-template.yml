@@ -7,7 +7,7 @@ parameters:
     value: "store"
     required: true
   - name: STORE_BACKEND
-    value: "store-catalogue"
+    value: "store-backend"
     required: true
 objects:
 - apiVersion: v1

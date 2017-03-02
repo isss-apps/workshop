@@ -27,7 +27,7 @@ Workshop instructions for System Integration lecture
 
 ### Prerequisites
 
-Both binaries should be placed on `$PATH` depending on your OS.
+All binaries should be placed on `$PATH` depending on your OS.
 
 #### Minishift
 [Download latest beta](https://github.com/minishift/minishift/releases/tag/v1.0.0-beta.4)
@@ -387,15 +387,13 @@ Demo to introduce CI/CD pipelines on OpenShift.
 Create necessary resources on OpenShift instance.
 
 ```
-oc create -f fis-image-streams.json -n openshift
-
 oc new-project pipeline
 
 oc new-app --template=openshift/jenkins-ephemeral
 
 oc status
 
-oc process pipeline-template.yml | oc create -f -
+oc process -f pipeline-template.yml | oc create -f -
 ```
 
 
