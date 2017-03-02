@@ -160,8 +160,9 @@ GRANT SELECT ON store TO student;
 
 Now you may edit the store DeploymentConfig to use the cluster-local DB service
 
+```
 oc env dc store SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql/isss
-
+```
 
 ## cicd-pipeline
 Demo to introduce CI/CD pipelines on OpenShift.
