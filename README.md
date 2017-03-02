@@ -31,6 +31,30 @@ Login as developer from now on
 oc login --username=developer --password=developer
 ```
 
+## The Integration
+
+We will be responsible for an integration microservice, which is part of an "online store".
+
+Your service will integrate the following services:
+
+* *Catalog service* which maintains the product tree, mapping of catalogue (client-visible) ids to internal storeIds and item pricing.
+* *Store DB* an SQL server with stock and supplier information
+* *Ordering service* which handls the actual orders
+
+to expose the following endpoints:
+
+#### GET /catalog/list/${id}
+
+Asking the catalog service to get the list of sub-categories or products in the given tree, filtering out the internal details (such as the storeId)
+
+#### GET /availability/${id}
+
+Returns the availability information about the product. Asks the catalog service for the storeId, and does the SQL query to the Store DB to retreive the stock and supplier delay.
+
+#### PUT /order
+
+Using the catalog service, translates the client order request to the order request the Ordering service understands.
+
 
 ## Deploying to OpenShift
 
