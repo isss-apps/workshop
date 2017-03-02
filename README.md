@@ -14,9 +14,22 @@ Both binaries should be placed on `$PATH` depending on your OS.
 minishift start --iso-url=https://github.com/minishift/minishift-centos-iso/releases/download/v1.0.0-rc.2/minishift-centos7.iso --cpus 2 --memory 4096
 ```
 
+
 #### OC client
 [Download latest stable](https://github.com/openshift/origin/releases/tag/v1.4.1)
 
+#### Install Fuse Integration Services image streams
+
+```
+oc login https://`minishift ip`:8443 -u system:admin
+oc create -f fis-image-streams.json -n openshift
+```
+
+Login as developer from now on
+
+```
+oc login --username=developer --password=developer
+```
 
 ## Deploying to OpenShift
 
