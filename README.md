@@ -182,9 +182,9 @@ The database may be a bit overloaded at times, and since the information it prov
 
 In case of timeout, let the availability query return an HTTP 503 code with a nice custom nice "sorry" message in the body.
 
-See 
+See
 
-* http://camel.apache.org/sql-component.html 
+* http://camel.apache.org/sql-component.html
 * http://docs.spring.io/spring/docs/2.5.x/javadoc-api/org/springframework/jdbc/core/JdbcTemplate.html
 * http://camel.apache.org/exception-clause.html
 
@@ -237,7 +237,7 @@ Build the image using locally built jar file
 oc start-build store --from-file=target/store.jar
 ```
 
-Now the application should be running, 
+Now the application should be running,
 
 ```
 oc get pods
@@ -313,7 +313,7 @@ CREATE TABLE items (
 CREATE TABLE suppliers (
     supplier_id            integer PRIMARY KEY,
     name                   varchar(40) NOT NULL,
-    address                varchar(90) NOT NULL 
+    address                varchar(90) NOT NULL
 );
 
 insert into suppliers (supplier_id, name, address)  values (5000, 'Horsin Around', 'Ponnyville, 456 01 FT');
@@ -363,7 +363,7 @@ oc new-app --template=openshift/jenkins-ephemeral
 
 oc status
 
-oc process bc-pipeline.yml | oc create -f -
+oc process pipeline-template.yml | oc create -f -
 ```
 
 

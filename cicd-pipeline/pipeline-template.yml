@@ -6,10 +6,7 @@ parameters:
   - name: STORE
     value: "store"
     required: true
-  - name: STORE_ORDER
-    value: "store-order"
-    required: true
-  - name: STORE_CATALOGUE
+  - name: STORE_BACKEND
     value: "store-catalogue"
     required: true
 objects:
@@ -30,18 +27,18 @@ objects:
     strategy:
       jenkinsPipelineStrategy:
         jenkinsfile: |-
-          def storeCatalogue="${STORE_CATALOGUE}"
+          def storeBackend="${STORE_BACKEND}"
           def store="${STORE}"
           node("maven") {
             stage("Initialize") {
-              sh "curl -O https://raw.githubusercontent.com/isss-apps/cicd-pipeline/master/settings.xml"
+              sh "curl -O https://raw.githubusercontent.com/isss-apps/workshop/master/settings.xml"
               stash name: "settings.xml", includes:"settings.xml"
             }
-            stage("Build Maven ${storeCatalogue}") {
-              git url: "https://github.com/isss-apps/${storeCatalogue}.git", branch: "master"
+            stage("Build Maven ${storeBackend}") {
+              git url: "https://github.com/isss-apps/${storeBackend}.git", branch: "master"
               unstash name:"settings.xml"
               sh "mvn -s settings.xml clean package"
-              stash name:"${storeCatalogue}-jar", includes:"target/${storeCatalogue}.jar"
+              stash name:"${storeBackend}-jar", includes:"target/${storeBackend}.jar"
             }
             stage("Build Maven ${store}") {
               git url: "https://github.com/isss-apps/${store}.git", branch: "master"
@@ -54,9 +51,9 @@ objects:
             stage("Build images") {
             input message: "Promote to STAGE?", ok: "Promote"
               parallel (
-                "${storeCatalogue} image": {
-                    unstash name:"${storeCatalogue}-jar"
-                    sh "oc start-build ${storeCatalogue} --from-file=target/${storeCatalogue}.jar --follow"
+                "${storeBackend} image": {
+                    unstash name:"${storeBackend}-jar"
+                    sh "oc start-build ${storeBackend} --from-file=target/${storeBackend}.jar --follow"
                 },
                 "${store} image": {
                     unstash name:"${store}-jar"
@@ -66,8 +63,8 @@ objects:
             }
             stage("Verify deployment") {
               parallel (
-                "${storeCatalogue} DC": {
-                  openshiftVerifyDeployment deploymentConfig: storeCatalogue
+                "${storeBackend} DC": {
+                  openshiftVerifyDeployment deploymentConfig: storeBackend
                 },
                 "${store} DC": {
                   openshiftVerifyDeployment deploymentConfig: store
@@ -86,15 +83,15 @@ objects:
 - apiVersion: v1
   kind: BuildConfig
   metadata:
-    name: ${STORE_CATALOGUE}
+    name: ${STORE_BACKEND}
     labels:
-      application: ${STORE_CATALOGUE}
+      application: ${STORE_BACKEND}
   spec:
     nodeSelector: null
     output:
       to:
         kind: ImageStreamTag
-        name: ${STORE_CATALOGUE}:latest
+        name: ${STORE_BACKEND}:latest
     postCommit: {}
     resources: {}
     runPolicy: Serial
@@ -112,9 +109,9 @@ objects:
 - apiVersion: v1
   kind: ImageStream
   metadata:
-    name: ${STORE_CATALOGUE}
+    name: ${STORE_BACKEND}
     labels:
-      application: ${STORE_CATALOGUE}
+      application: ${STORE_BACKEND}
 - apiVersion: v1
   kind: BuildConfig
   metadata:
@@ -151,12 +148,12 @@ objects:
   kind: "DeploymentConfig"
   metadata:
     labels:
-      project: ${STORE_CATALOGUE}
-    name: ${STORE_CATALOGUE}
+      project: ${STORE_BACKEND}
+    name: ${STORE_BACKEND}
   spec:
     replicas: 1
     selector:
-      project: ${STORE_CATALOGUE}
+      project: ${STORE_BACKEND}
     strategy:
       rollingParams:
         timeoutSeconds: 10800
@@ -164,13 +161,13 @@ objects:
     template:
       metadata:
         labels:
-          project: ${STORE_CATALOGUE}
+          project: ${STORE_BACKEND}
       spec:
         containers:
         - env:
           - name: "JAVA_APP_DIR"
             value: "/deployments"
-          image: ${STORE_CATALOGUE}
+          image: ${STORE_BACKEND}
           imagePullPolicy: "Always"
           livenessProbe:
             httpGet:
@@ -200,7 +197,7 @@ objects:
         - "spring-boot"
         from:
           kind: "ImageStreamTag"
-          name: "${STORE_CATALOGUE}:latest"
+          name: "${STORE_BACKEND}:latest"
       type: "ImageChange"
 - apiVersion: "v1"
   kind: "DeploymentConfig"
@@ -265,8 +262,8 @@ objects:
   kind: "Service"
   metadata:
     labels:
-      project: ${STORE_CATALOGUE}
-    name: ${STORE_CATALOGUE}
+      project: ${STORE_BACKEND}
+    name: ${STORE_BACKEND}
   spec:
     ports:
     - name: "http"
@@ -274,7 +271,7 @@ objects:
       protocol: "TCP"
       targetPort: 8080
     selector:
-      project: ${STORE_CATALOGUE}
+      project: ${STORE_BACKEND}
 - apiVersion: "v1"
   kind: "Service"
   metadata:
