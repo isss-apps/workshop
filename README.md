@@ -1,5 +1,5 @@
-# cicd-pipeline
-Demo to introduce CI/CD pipelines on OpenShift.
+# workshop
+Workshop instructions for System Integration lecture
 
 ### Prerequisites
 
@@ -17,8 +17,10 @@ minishift start --iso-url=https://github.com/minishift/minishift-centos-iso/rele
 #### OC client
 [Download latest stable](https://github.com/openshift/origin/releases/tag/v1.4.1)
 
+## cicd-pipeline
+Demo to introduce CI/CD pipelines on OpenShift.
 
-### Usage
+### Instructions
 
 Create necessary resources on OpenShift instance.
 
@@ -35,7 +37,7 @@ oc process bc-pipeline.yml | oc create -f -
 ```
 
 
-#### Webhooks
+### Webhooks
 Builds can be invoked via webhooks (generic or GitHub). See [oficial documentation](https://docs.openshift.com/container-platform/3.4/dev_guide/builds/triggering_builds.html#generic-webhooks) for more details.
 
 
@@ -47,4 +49,3 @@ oc describe bc cicd
 Start build with `POST` method on provided URL.
 ```
 curl -k -X POST <webhook-url>
-```
