@@ -121,6 +121,34 @@ $ curl -X PUT -d @order.json http://store.foobarter.org/order
 {"message":"Thank you Random F. Flyer for your order!","price":69.97,"duplicate":false}
 ```
 
+### Task 00 - Wiring up the Camel Routes
+
+First, checkout the project and the initial workshop tag, isss-00
+
+```
+git clone https://github.com/isss-apps/store.git
+cd store
+git checkout isss-00
+```
+
+#### Assignment: fill in the TODOs to wire up the routes
+
+To build and run, use maven:
+
+```
+mvn clean package
+
+# Configure the DB username / password
+export SPRING_DATASOURCE_USERNAME=student
+export SPRING_DATASOURCE_PASSWORD=isss-secret
+
+mvn spring-boot:run
+```
+
+The store endpoints should be accessible on http://127.0.0.1:8080/
+
+
+
 ## Deploying to OpenShift
 
 ### Deploying the Store application
