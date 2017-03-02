@@ -6,6 +6,7 @@ Workshop instructions for System Integration lecture
       - [Minishift](#minishift)
       - [OC client](#oc-client)
       - [Install Fuse Integration Services image streams](#install-fuse-integration-services-image-streams)
+      - [Store client binary](#store-client-binary)
   * [The Integration](#the-integration)
       - [GET /catalog/list/${id}](#get--catalog-list---id-)
       - [GET /availability/${id}](#get--availability---id-)
@@ -52,6 +53,37 @@ Login as developer from now on
 
 ```
 oc login --username=developer --password=developer
+```
+
+#### Store client binary
+Store client can be used to verify implementation.
+[Download latest binary](https://github.com/isss-apps/client/releases/tag/1.0) for your OS.
+```
+Usage: client OPERATION [item_id] [--error]
+
+OPERATION
+  * items
+  * availability
+  * order
+
+Examples:
+  # List items in all categories
+  client items
+
+  # List items in category 0 (available categories are 0,1,2)
+  client items 0
+
+  # Query availability of item with id 1
+  client availability 1
+
+  # Query availability of an arbitrary item
+  client availability
+
+  # Send order from 'orders' dir to server
+  client order
+
+  # Send order to a slow endpoint
+  client order --error
 ```
 
 ## The Integration
