@@ -33,6 +33,26 @@ oc login --username=developer --password=developer
 
 ## Deploying to OpenShift
 
+### Deploying the Store application
+
+Create the build config and an image stream for our store image (named store)
+
+```
+oc new-build --binary=true -i openshift/fis-java-openshift:2.0 --name=store
+```
+
+Create the deployment config from our store image stream
+
+```
+oc new-app -i store --allow-missing-imagestream-tags
+```
+
+Build the image using locally built jar file
+
+```
+oc start-build store --from-file=target/store.jar
+```
+
 ...
 
 ### Deploying PostgreSQL
