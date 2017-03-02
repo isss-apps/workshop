@@ -153,7 +153,7 @@ The store endpoints should be accessible on http://127.0.0.1:8080/
 
 ### Task 01 - Add Timeout to the Availability SQL Query
 
-The DB may be a bit overloaded at times, and since the information it provides is not essential, we should not block users when the query takes too long.
+The database may be a bit overloaded at times, and since the information it provides is not essential, we should not block users when the query takes too long.
 
 #### Assignment: Add and handle a query timeout of 5 seconds in the sql: query
 
@@ -164,6 +164,17 @@ See
 * http://camel.apache.org/sql-component.html 
 * http://docs.spring.io/spring/docs/2.5.x/javadoc-api/org/springframework/jdbc/core/JdbcTemplate.html
 * http://camel.apache.org/exception-clause.html
+
+### Task 02 - Add Circuit Breaker to the Availability SQL Query
+
+While timeouts are better than infinite hangs, they still annoy users. Lets add a cricuit breaker, so that when the database takes too long, we just stop asking it for several minutes and fail immediately.
+
+#### Assignment: Add a separate direct:storedb-query-with-circuit-breaker route in between direct:availability and direct:storedb-query
+
+See
+
+* http://camel.apache.org/load-balancer.html
+* http://camel.apache.org/try-catch-finally.html  (optionally)
 
 ## Deploying to OpenShift
 
