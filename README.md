@@ -1,6 +1,33 @@
 # workshop
 Workshop instructions for System Integration lecture
 
+- [workshop](#workshop)
+    + [Prerequisites](#prerequisites)
+      - [Minishift](#minishift)
+      - [OC client](#oc-client)
+      - [Install Fuse Integration Services image streams](#install-fuse-integration-services-image-streams)
+  * [The Integration](#the-integration)
+      - [GET /catalog/list/${id}](#get--catalog-list---id-)
+      - [GET /availability/${id}](#get--availability---id-)
+      - [PUT /order](#put--order)
+    + [Task 00 - Wiring up the Camel Routes](#task-00---wiring-up-the-camel-routes)
+      - [Assignment: fill in the TODOs to wire up the routes](#assignment--fill-in-the-todos-to-wire-up-the-routes)
+    + [Task 01 - Add Timeout to the Availability SQL Query](#task-01---add-timeout-to-the-availability-sql-query)
+      - [Assignment: Add and handle a query timeout of 5 seconds in the sql: query](#assignment--add-and-handle-a-query-timeout-of-5-seconds-in-the-sql--query)
+    + [Task 02 - Add Circuit Breaker to the Availability SQL Query](#task-02---add-circuit-breaker-to-the-availability-sql-query)
+      - [Assignment: Add a separate direct:storedb-query-with-circuit-breaker route in between direct:availability and direct:storedb-query](#assignment--add-a-separate-direct-storedb-query-with-circuit-breaker-route-in-between-direct-availability-and-direct-storedb-query)
+    + [Task 03 - Bulkhead](#task-03---bulkhead)
+      - [Assignment: Investigate why a blocked ordering service cause issues with the other parts of the application](#assignment--investigate-why-a-blocked-ordering-service-cause-issues-with-the-other-parts-of-the-application)
+  * [Deploying to OpenShift](#deploying-to-openshift)
+    + [Deploying the Store application](#deploying-the-store-application)
+    + [Exposing the 8080 port to the outside](#exposing-the-8080-port-to-the-outside)
+    + [Configuring pods via environment variables](#configuring-pods-via-environment-variables)
+    + [Deploying PostgreSQL](#deploying-postgresql)
+  * [cicd-pipeline](#cicd-pipeline)
+    + [Instructions](#instructions)
+    + [Webhooks](#webhooks)
+
+
 ### Prerequisites
 
 Both binaries should be placed on `$PATH` depending on your OS.
