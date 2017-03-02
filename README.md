@@ -31,6 +31,7 @@ Login as developer from now on
 oc login --username=developer --password=developer
 ```
 
+
 ## Deploying to OpenShift
 
 ### Deploying the Store application
@@ -151,8 +152,16 @@ CREATE OR REPLACE FUNCTION mysleep(integer) RETURNS integer
     RETURNS NULL ON NULL INPUT;
 
 CREATE OR REPLACE VIEW store (id, stock, supplier_days) AS select id, stock, supplier_days from items;
-CREATE OR REPLACE VIEW store_slow (id, stock, supplier_days) AS select id, stock, supplier_days, mysleep(20) from items;
+CREATE OR REPLACE VIEW store_slow (id, stock, supplier_days) AS select id, stock, supplier_days, mysleep(1) from items;
+
+GRANT SELECT ON store_slow TO student;
+GRANT SELECT ON store TO student;
 ```
+
+Now you may edit the store DeploymentConfig to use the cluster-local DB service
+
+oc env dc store SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql/isss
+
 
 ## cicd-pipeline
 Demo to introduce CI/CD pipelines on OpenShift.
