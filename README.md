@@ -53,6 +53,40 @@ Build the image using locally built jar file
 oc start-build store --from-file=target/store.jar
 ```
 
+Now the application should be running, 
+
+```
+oc get pods
+```
+
+We can watch the pod logs
+
+```
+oc logs store-1-ok3ix -f
+```
+
+### Exposing the 8080 port to the outside
+
+First we create the service (we expose the pod port 8080 as a kubernetes service)
+
+```
+oc expose dc store --port=8080
+```
+
+Kubernetes services are cluster-local by default,  we expose the kubernetes service also as an OpenShift Route, so it can be accessed from outside the kubernetes cluster
+
+```
+oc expose service store --hostname=store.`minishift ip`.nip.io
+```
+
+### Configuring pods via environment variables
+
+The store should be working, except the availability DB, as it lacks the DB username/password
+
+```
+oc env dc store SPRING_DATASOURCE_USERNAME=student SPRING_DATASOURCE_PASSWORD=isss-secret
+```
+
 ...
 
 ### Deploying PostgreSQL
