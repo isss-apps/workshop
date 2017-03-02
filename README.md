@@ -131,23 +131,39 @@ cd store
 git checkout isss-00
 ```
 
+and open the project in your favourite editor / IDE
+
 #### Assignment: fill in the TODOs to wire up the routes
+
+Edit src/main/java/org/foobarter/isss/store/StoreRoute.java
 
 To build and run, use maven:
 
 ```
-mvn clean package
+mvn -s configuration/settings.xml clean package
 
 # Configure the DB username / password
 export SPRING_DATASOURCE_USERNAME=student
 export SPRING_DATASOURCE_PASSWORD=isss-secret
 
-mvn spring-boot:run
+mvn -s configuration/settings.xml spring-boot:run
 ```
 
 The store endpoints should be accessible on http://127.0.0.1:8080/
 
+### Task 01 - Add Timeout to the Availability SQL Query
 
+The DB may be a bit overloaded at times, and since the information it provides is not essential, we should not block users when the query takes too long.
+
+#### Assignment: Add and handle a query timeout of 5 seconds in the sql: query
+
+In case of timeout, let the availability query return an HTTP 503 code with a nice custom nice "sorry" message in the body.
+
+See 
+
+* http://camel.apache.org/sql-component.html 
+* http://docs.spring.io/spring/docs/2.5.x/javadoc-api/org/springframework/jdbc/core/JdbcTemplate.html
+* http://camel.apache.org/exception-clause.html
 
 ## Deploying to OpenShift
 
