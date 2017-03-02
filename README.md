@@ -176,6 +176,18 @@ See
 * http://camel.apache.org/load-balancer.html
 * http://camel.apache.org/try-catch-finally.html  (optionally)
 
+### Task 03 - Bulkhead
+
+The ordering service contains a bug that cause the request to hang for several minutes for some specific customer names
+
+#### Assignment: Investigate why a blocked ordering service cause issues with the other parts of the application
+
+Making enough blocking requests to the ordering service (around 20) cause even the unrelated catalogue service operations to stop working. Find out why and fix the problem so that a blocked ordering service don't affect the catalogue service calls.
+
+See:
+
+* http://camel.apache.org/http4.html
+
 ## Deploying to OpenShift
 
 ### Deploying the Store application

@@ -1,0 +1,15 @@
+{
+  "name": "ERROR",
+  "address": "Somewhere in the Galaxy",
+  "items": [
+    {
+      "catalogId": 3,
+      "amount": 2
+    },
+    {
+      "catalogId": 4,
+      "amount": 1
+    }
+  ]
+}
+
