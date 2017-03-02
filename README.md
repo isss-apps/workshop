@@ -91,10 +91,35 @@ $ curl -q http://store.foobarter.org/catalog/list/2 | python -m json.tool
 
 Returns the availability information about the product. Asks the catalog service for the storeId, and does the SQL query to the Store DB to retreive the stock and supplier delay.
 
+```
+$ curl -q http://store.foobarter.org/availability/8
+{"itemId":8,"inStock":false,"supplierDays":30}
+```
+
 #### PUT /order
 
 Using the catalog service, translates the client order request to the order request the Ordering service understands.
 
+```
+$ cat order.json
+{
+  "name": "Random F. Flyer",
+  "address": "Milliways, 25, MG, MW",
+  "items": [
+    {
+      "catalogId": 3,
+      "amount": 2
+    },
+    {
+      "catalogId": 4,
+      "amount": 1
+    }
+  ]
+}
+
+$ curl -X PUT -d @order.json http://store.foobarter.org/order
+{"message":"Thank you Random F. Flyer for your order!","price":69.97,"duplicate":false}
+```
 
 ## Deploying to OpenShift
 
