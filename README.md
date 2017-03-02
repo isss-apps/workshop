@@ -184,6 +184,10 @@ The ordering service contains a bug that cause the request to hang for several m
 
 Making enough blocking requests to the ordering service (around 20) cause even the unrelated catalogue service operations to stop working. Find out why and fix the problem so that a blocked ordering service don't affect the catalogue service calls.
 
+```
+ab -u order-error.json -c 20 -n 10000 -s 1000 http://127.0.0.1:8080/order
+```
+
 See:
 
 * http://camel.apache.org/http4.html
