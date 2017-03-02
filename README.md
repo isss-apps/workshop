@@ -95,7 +95,7 @@ Demo to introduce CI/CD pipelines on OpenShift.
 Create necessary resources on OpenShift instance.
 
 ```
-oc create -f fis-image fis-image-streams.json -n openshift
+oc create -f fis-image-streams.json -n openshift
 
 oc new-project pipeline
 
