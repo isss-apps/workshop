@@ -206,6 +206,26 @@ mvn -s configuration/settings.xml spring-boot:run
 
 The store endpoints should be accessible on http://127.0.0.1:8080/
 
+Verify output of following commands
+```
+$ client items
+Operation: QUERY_ITEMS
+Time elapsed: 35.660396ms | Response: [{"id":3,"name":"BoJack Horseman","price":19.99,"rootCategory":0,"dir":false},{"id":4,"name":"Princess Carolyn","price":29.99,"rootCategory":0,"dir":false},{"id":5,"name":"Diane Nguyen","price":29.99,"rootCategory":0,"dir":false}]
+Time elapsed: 29.28774ms | Response: [{"id":6,"name":"Pan Flute","price":199.99,"rootCategory":1,"dir":false},{"id":7,"name":"Panini Flute","price":99.99,"rootCategory":1,"dir":false}]
+Time elapsed: 31.199086ms | Response: [{"id":8,"name":"Portal Gun","price":999.99,"rootCategory":2,"dir":false}]
+Time elapsed: 34.402326ms | Response: [{"id":3,"name":"BoJack Horseman","price":19.99,"rootCategory":0,"dir":false},{"id":4,"name":"Princess Carolyn","price":29.99,"rootCategory":0,"dir":false},{"id":5,"name":"Diane Nguyen","price":29.99,"rootCategory":0,"dir":false}]
+
+$ client availability
+Operation: QUERY_ITEM_AVAILABILITY
+Time elapsed: 1.120763425s | Response: {"itemId":5,"inStock":false,"supplierDays":15}
+
+$ client items
+Operation: QUERY_ITEMS
+Time elapsed: 38.645004ms | Response: [{"id":3,"name":"BoJack Horseman","price":19.99,"rootCategory":0,"dir":false},{"id":4,"name":"Princess Carolyn","price":29.99,"rootCategory":0,"dir":false},{"id":5,"name":"Diane Nguyen","price":29.99,"rootCategory":0,"dir":false}]
+Time elapsed: 38.723823ms | Response: [{"id":6,"name":"Pan Flute","price":199.99,"rootCategory":1,"dir":false},{"id":7,"name":"Panini Flute","price":99.99,"rootCategory":1,"dir":false}]
+Time elapsed: 31.578738ms | Response: [{"id":8,"name":"Portal Gun","price":999.99,"rootCategory":2,"dir":false}]
+```
+
 ### Task 01 - Add Timeout to the Availability SQL Query
 
 The database may be a bit overloaded at times, and since the information it provides is not essential, we should not block users when the query takes too long.
@@ -240,7 +260,7 @@ The ordering service contains a bug that cause the request to hang for several m
 Making enough blocking requests to the ordering service (around 20) cause even the unrelated catalogue service operations to stop working. Find out why and fix the problem so that a blocked ordering service don't affect the catalogue service calls.
 
 ```
-ab -u order-error.json -c 20 -n 10000 -s 1000 http://127.0.0.1:8080/order
+$ client order --error
 ```
 
 See:
@@ -393,7 +413,7 @@ oc new-app --template=openshift/jenkins-ephemeral
 
 oc status
 
-oc process -f pipeline-template.yml | oc create -f -
+oc process -f cicd-pipeline/pipeline-template.yml | oc create -f -
 ```
 
 
