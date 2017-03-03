@@ -36,6 +36,11 @@ All binaries should be placed on `$PATH` depending on your OS.
 
 ```
 minishift start --iso-url=https://github.com/minishift/minishift-centos-iso/releases/download/v1.0.0-rc.2/minishift-centos7.iso --cpus 2 --memory 4096
+
+minishift ssh
+
+[docker@minishift ~]$ docker pull registry.access.redhat.com/jboss-fuse-6/fis-java-openshift:2.0
+
 ```
 
 
